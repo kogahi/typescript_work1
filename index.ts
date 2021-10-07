@@ -1,11 +1,12 @@
-class ObjectWrapper {
+class ObjectWrapper <T> {
     private _obj;
   
     /***
      * 引数のオブジェクトのコピーを this._objに設定
      */
-    constructor(_obj: {a:string, b:string, [key: string]: string;}) {
-        this._obj = _obj;
+    constructor(_obj: T) {
+      let obj = JSON.parse(JSON.stringify(_obj));
+      this._obj = obj;
     }
   
     /**
@@ -13,7 +14,8 @@ class ObjectWrapper {
      * @return Object
      */
     get obj() {
-        return this._obj;
+      let obj =  JSON.parse(JSON.stringify(this._obj));
+      return obj;
     }
   
     /**
@@ -21,45 +23,43 @@ class ObjectWrapper {
      * @param key オブジェクトのキー
      * @param val オブジェクトの値
      */
-    set(key: string, val: string): boolean {
-        if(this._obj[key]) {
-            this._obj[key] = val;
-            return true;
-        }else{
-            return false;
-        }
-    }
+     set<T , U extends string | number>(key: T, val: U ): boolean {
+      if(this._obj[key]) {
+          this._obj[key] = val;
+          return true;
+      }else{
+          return false;
+      }
+  }
   
     /**
      * 指定したキーの値のコピーを返却
      * 指定のキーが存在しない場合 undefinedを返却
      * @param key オブジェクトのキー
      */
-    get(key: string) {
-       if(this._obj[key]) {
-   //{a: '', b: ''}
-         return this._obj[key];
-       }else{
-           return undefined;
-       }
-    }
+     get<T>(key: T)  {
+      if(this._obj[key]) {
+        let obj = JSON.parse(JSON.stringify(this._obj[key]));
+        return obj;
+      }else{
+        return undefined;
+      }
+   }
   
     /**
      * 指定した値を持つkeyの配列を返却。該当のものがなければ空の配列を返却。
      */
-    findKeys(val: unknown) {
-        if(typeof val === 'string'){
-            if(this._obj[val]){
-              return [val, this._obj[val]];
-            }else{
-              return [];
-            }
-        }else{
-          return [];
+     findKeys(val: string): string[] {
+      let obj = JSON.parse(JSON.stringify(this._obj));
+      Object.keys(obj).map(function(key, value) {
+        if(value.toString() === val) {
+          return [obj[key], obj[value]];
         }
+      })
+      return [];
     }
   
-    includes(key: string) {
+    includes(key: string): boolean {
         if(this._obj[key]) {
           return true;
         }else{
