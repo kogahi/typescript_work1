@@ -1,20 +1,22 @@
-class ObjectWrapper <T> {
+ import * as R from 'ramda';
+import { isArrayBufferView } from 'util/types';
+
+class ObjectWrapper <T extends Object> {
     private _obj;
-  
     /***
      * 引数のオブジェクトのコピーを this._objに設定
      */
     constructor(_obj: T) {
-      let obj = JSON.parse(JSON.stringify(_obj));
-      this._obj = obj;
+      this._obj = R.clone(_obj);
     }
-  
+
     /**
      * this._objのコピーを返却
      * @return Object
      */
     get obj() {
-      let obj =  JSON.parse(JSON.stringify(this._obj));
+      let obj = R.clone(this._obj);
+   
       return obj;
     }
   
@@ -23,7 +25,7 @@ class ObjectWrapper <T> {
      * @param key オブジェクトのキー
      * @param val オブジェクトの値
      */
-     set<T , U extends string | number>(key: T, val: U ): boolean {
+     set<U extends keyof T, V extends T[U]>(key: U, val: V ): boolean {
       if(this._obj[key]) {
           this._obj[key] = val;
           return true;
@@ -37,9 +39,9 @@ class ObjectWrapper <T> {
      * 指定のキーが存在しない場合 undefinedを返却
      * @param key オブジェクトのキー
      */
-     get<T>(key: T)  {
+     get<U extends keyof T>(key: U): T[U] | undefined {
       if(this._obj[key]) {
-        let obj = JSON.parse(JSON.stringify(this._obj[key]));
+        let obj = Object.assign({}, this._obj[key]);
         return obj;
       }else{
         return undefined;
@@ -48,18 +50,18 @@ class ObjectWrapper <T> {
   
     /**
      * 指定した値を持つkeyの配列を返却。該当のものがなければ空の配列を返却。
-     */
-     findKeys(val: string): string[] {
-      let obj = JSON.parse(JSON.stringify(this._obj));
-      Object.keys(obj).map(function(key, value) {
-        if(value.toString() === val) {
-          return [obj[key], obj[value]];
-        }
-      })
-      return [];
+     */          //  a:01, b:02
+     findKeys(val: T[keyof T]): (keyof T)[] {
+       let array = R.keys(this._obj);
+       array.map((value) => {
+         if(this._obj[value] === val) {
+           return [value, this._obj[value]]
+         }
+       })
+       return [];
     }
   
-    includes(key: string): boolean {
+    includes<U extends keyof T>(key: U): boolean {
         if(this._obj[key]) {
           return true;
         }else{
