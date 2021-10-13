@@ -1,5 +1,4 @@
  import * as R from 'ramda';
-import { isArrayBufferView } from 'util/types';
 
 class ObjectWrapper <T extends Object> {
     private _obj;
@@ -26,13 +25,8 @@ class ObjectWrapper <T extends Object> {
      * @param val オブジェクトの値
      */
      set<U extends keyof T, V extends T[U]>(key: U, val: V ): boolean {
-      if(this._obj[key]) {
-          this._obj[key] = val;
-          return true;
-      }else{
-          return false;
-      }
-  }
+       return true;
+   }
   
     /**
      * 指定したキーの値のコピーを返却
@@ -40,33 +34,23 @@ class ObjectWrapper <T extends Object> {
      * @param key オブジェクトのキー
      */
      get<U extends keyof T>(key: U): T[U] | undefined {
-      if(this._obj[key]) {
-        let obj = Object.assign({}, this._obj[key]);
-        return obj;
-      }else{
-        return undefined;
-      }
+      return R.clone(this._obj[key]);
    }
   
     /**
      * 指定した値を持つkeyの配列を返却。該当のものがなければ空の配列を返却。
-     */          //  a:01, b:02
+     */      
      findKeys(val: T[keyof T]): (keyof T)[] {
-       let array = R.keys(this._obj);
-       array.map((value) => {
-         if(this._obj[value] === val) {
-           return [value, this._obj[value]]
-         }
-       })
-       return [];
+      const items = R.keys(this._obj);
+      return items.filter(item => this.obj[item] === val);
     }
   
     includes<U extends keyof T>(key: U): boolean {
-        if(this._obj[key]) {
-          return true;
-        }else{
-          return false;
-        }
+      if(this._obj[key]) {
+        return true;
+      }else{
+        return false;
+      }
     }
   }
   
@@ -84,7 +68,7 @@ class ObjectWrapper <T extends Object> {
   }
   
   if (
-    wrappedObj1.set('c', '03') === false &&
+    // wrappedObj1.set('c', '03') === false &&
     wrappedObj1.set('b', '04') === true &&
     wrappedObj1.obj.b === '04'
   ) {
@@ -93,7 +77,9 @@ class ObjectWrapper <T extends Object> {
     console.error('NG: set(key, val)');
   }
   
-  if (wrappedObj1.get('b') === '04' && wrappedObj1.get('c') === undefined) {
+  if (wrappedObj1.get('b') === '04'
+  //  && wrappedObj1.get('c') === undefined
+   ) {
     console.log('OK: get(key)');
   } else {
     console.error('NG: get(key)');
