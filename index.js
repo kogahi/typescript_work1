@@ -3,7 +3,8 @@ var ObjectWrapper = /** @class */ (function () {
      * 引数のオブジェクトのコピーを this._objに設定
      */
     function ObjectWrapper(_obj) {
-        this._obj = _obj;
+        var obj = JSON.parse(JSON.stringify(_obj));
+        this._obj = obj;
     }
     Object.defineProperty(ObjectWrapper.prototype, "obj", {
         /**
@@ -11,7 +12,8 @@ var ObjectWrapper = /** @class */ (function () {
          * @return Object
          */
         get: function () {
-            return this._obj;
+            var obj = JSON.parse(JSON.stringify(this._obj));
+            return obj;
         },
         enumerable: false,
         configurable: true
@@ -37,8 +39,8 @@ var ObjectWrapper = /** @class */ (function () {
      */
     ObjectWrapper.prototype.get = function (key) {
         if (this._obj[key]) {
-            //{a: '', b: ''}
-            return this._obj[key];
+            var obj = JSON.parse(JSON.stringify(this._obj[key]));
+            return obj;
         }
         else {
             return undefined;
@@ -48,17 +50,13 @@ var ObjectWrapper = /** @class */ (function () {
      * 指定した値を持つkeyの配列を返却。該当のものがなければ空の配列を返却。
      */
     ObjectWrapper.prototype.findKeys = function (val) {
-        if (typeof val === 'string') {
-            if (this._obj[val]) {
-                return [val, this._obj[val]];
+        var obj = JSON.parse(JSON.stringify(this._obj));
+        Object.keys(obj).map(function (key, value) {
+            if (value.toString() === val) {
+                return [obj[key], obj[value]];
             }
-            else {
-                return [];
-            }
-        }
-        else {
-            return [];
-        }
+        });
+        return [];
     };
     ObjectWrapper.prototype.includes = function (key) {
         if (this._obj[key]) {
